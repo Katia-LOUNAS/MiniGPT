@@ -56,7 +56,9 @@ def estimate_loss():
         losses = torch.zeros(eval_iters)
         for k in range(eval_iters):
             X, Y = get_batch(split)
-            
+            # Adjust indices in X and Y
+            X = torch.clamp(X, max=vocab_size - 1)
+            Y = torch.clamp(Y, max=vocab_size - 1)  
             logits, loss = model(X, Y)
             losses[k] = loss.item()
         out[split] = losses.mean()
@@ -133,6 +135,7 @@ class Block(nn.Module):
     def forward(self, x):
         x = x + self.sa(self.ln1(x))
         x = x + self.ffwd(self.ln2(x))
+
         return x
 
 # super simple bigram model
